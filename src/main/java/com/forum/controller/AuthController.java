@@ -1,5 +1,7 @@
 package com.forum.controller;
 
+import com.forum.dto.AuthenticationResponse;
+import com.forum.dto.LoginRequest;
 import com.forum.dto.RegisterRequest;
 import com.forum.service.AuthService;
 import lombok.AllArgsConstructor;
@@ -24,5 +26,11 @@ public class AuthController {
     public ResponseEntity<String> verifyAccount(@PathVariable String token) {
         authService.verifyAccount(token);
         return new ResponseEntity<>("Account Activated Successfully!", HttpStatus.OK);
+    }
+
+    @PostMapping("/login")
+    public AuthenticationResponse login(@RequestBody LoginRequest loginRequest) {
+        return authService.login(loginRequest);
+
     }
 }
