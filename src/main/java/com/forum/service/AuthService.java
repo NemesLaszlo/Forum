@@ -4,6 +4,7 @@ import com.forum.dto.AuthenticationResponse;
 import com.forum.dto.LoginRequest;
 import com.forum.dto.RegisterRequest;
 import com.forum.exceptions.SpringForumException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import com.forum.model.NotificationEmail;
 import com.forum.model.User;
 import com.forum.model.VerificationToken;
@@ -82,5 +83,14 @@ public class AuthService {
         String token = jwtProvider.generateToken(authenticate);
 
         return new AuthenticationResponse(token, loginRequest.getUsername());
+    }
+
+    @Transactional(readOnly = true)
+    public User getCurrentUser() {
+        org.springframework.security.core.userdetails.User principal = (org.springframework.security.core.userdetails.User) SecurityContextHolder.
+                getContext().getAuthentication().getPrincipal();
+
+        return userRepository.findByUsername(principal.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User name not found - " + principal.getUsername()));
     }
 }
