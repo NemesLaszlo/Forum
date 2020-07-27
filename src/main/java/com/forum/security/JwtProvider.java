@@ -1,6 +1,7 @@
 package com.forum.security;
 
 import com.forum.exceptions.SpringForumException;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
@@ -11,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
-
+import static io.jsonwebtoken.Jwts.parser;
 
 
 @Service
@@ -46,4 +47,28 @@ public class JwtProvider {
             throw new SpringForumException("Exception occured while retrieving public key from keystore", e);
         }
     }
+
+    public boolean validateToken(String jwt) {
+        parser().setSigningKey(getPublicKey()).parseClaimsJws(jwt);
+        return true;
+    }
+
+    private PublicKey getPublicKey() {
+        try {
+            return keyStore.getCertificate("springblog").getPublicKey();
+        } catch (KeyStoreException e) {
+            throw new SpringForumException("Exception occured while " +
+                    "retrieving public key from keystore", e);
+        }
+    }
+
+    public String getUsernameFromJwt(String token) {
+        Claims claims = parser()
+                .setSigningKey(getPublicKey())
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();
+    }
+
 }
