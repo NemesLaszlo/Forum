@@ -1,0 +1,27 @@
+sudo: required
+dist: trusty
+
+jobs:
+ include:       
+    - stage: backend
+      name: "backend build"
+      language: java
+      jdk: oraclejdk8
+      env:
+        global:
+          - CC_TEST_REPORTER_ID=5f2b0d31d46ef542f3be7c5f678e235e8cef1e4a29355595da7a2fababe38ceb
+      before_script:
+        - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+        - chmod +x ./cc-test-reporter
+        - ./cc-test-reporter before-build
+        - chmod +x mvnw
+      script:
+        - ./mvnw clean install -B
+      after_script:
+        - cd ..
+        - ./cc-test-reporter format-coverage -d -t jacoco ./target/jacoco-ut/jacoco.xml
+        - ./cc-test-reporter upload-coverage -d -r 5f2b0d31d46ef542f3be7c5f678e235e8cef1e4a29355595da7a2fababe38ceb
+
+
+ notifications:
+  email: false
