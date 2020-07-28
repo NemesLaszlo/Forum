@@ -6,8 +6,6 @@ import com.forum.model.Post;
 import com.forum.model.Subforum;
 import com.forum.model.User;
 import com.forum.repository.CommentRepository;
-import com.forum.repository.VoteRepository;
-import com.forum.service.AuthService;
 import com.github.marlonlom.utilities.timeago.TimeAgo;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
