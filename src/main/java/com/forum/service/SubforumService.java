@@ -4,6 +4,7 @@ import com.forum.dto.SubforumDto;
 import com.forum.exceptions.SpringForumException;
 import com.forum.mapper.SubforumMapper;
 import com.forum.model.Subforum;
+import com.forum.model.User;
 import com.forum.repository.SubforumRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,10 +20,12 @@ public class SubforumService {
 
     private final SubforumRepository subforumRepository;
     private final SubforumMapper subforumMapper;
+    private final AuthService authService;
 
     @Transactional
     public SubforumDto create(SubforumDto subforumDto) {
-        Subforum subforum = subforumRepository.save(subforumMapper.mapDtoToSubforum(subforumDto));
+        User currentUser = authService.getCurrentUser();
+        Subforum subforum = subforumRepository.save(subforumMapper.mapDtoToSubforum(subforumDto, currentUser));
         subforumDto.setId(subforum.getId());
         return subforumDto;
     }

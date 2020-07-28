@@ -8,6 +8,7 @@ import com.forum.model.User;
 import com.forum.repository.CommentRepository;
 import com.forum.repository.VoteRepository;
 import com.forum.service.AuthService;
+import com.github.marlonlom.utilities.timeago.TimeAgo;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,16 +18,17 @@ public abstract class PostMapper {
 
     @Autowired
     private CommentRepository commentRepository;
-    @Autowired
 
+    @Autowired
     private VoteRepository voteRepository;
-    @Autowired
 
+    @Autowired
     private AuthService authService;
 
     @Mapping(target = "createdDate", expression = "java(java.time.Instant.now())")
     @Mapping(target = "description", source = "postRequest.description")
     @Mapping(target = "subforum", source = "subforum")
+    @Mapping(target = "voteCount", constant = "0")
     @Mapping(target = "user", source = "user")
     public abstract Post map(PostRequest postRequest, Subforum subforum, User user);
 
@@ -34,10 +36,15 @@ public abstract class PostMapper {
     @Mapping(target = "subforumName", source = "subforum.name")
     @Mapping(target = "userName", source = "user.username")
     @Mapping(target = "commentCount", expression = "java(commentCount(post))")
+    @Mapping(target = "duration", expression = "java(getDuration(post))")
     public abstract PostResponse mapToDto(Post post);
 
     Integer commentCount(Post post) {
         return commentRepository.findByPost(post).size();
+    }
+
+    String getDuration(Post post) {
+        return TimeAgo.using(post.getCreatedDate().toEpochMilli());
     }
 
 }
