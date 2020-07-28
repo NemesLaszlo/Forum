@@ -5,21 +5,39 @@ import com.forum.dto.PostResponse;
 import com.forum.model.Post;
 import com.forum.model.Subforum;
 import com.forum.model.User;
+import com.forum.repository.CommentRepository;
+import com.forum.repository.VoteRepository;
+import com.forum.service.AuthService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = "spring")
-public interface PostMapper {
+public abstract class PostMapper {
+
+    @Autowired
+    private CommentRepository commentRepository;
+    @Autowired
+
+    private VoteRepository voteRepository;
+    @Autowired
+
+    private AuthService authService;
 
     @Mapping(target = "createdDate", expression = "java(java.time.Instant.now())")
     @Mapping(target = "description", source = "postRequest.description")
     @Mapping(target = "subforum", source = "subforum")
     @Mapping(target = "user", source = "user")
-    Post map(PostRequest postRequest, Subforum subforum, User user);
+    public abstract Post map(PostRequest postRequest, Subforum subforum, User user);
 
     @Mapping(target = "id", source = "postId")
     @Mapping(target = "subforumName", source = "subforum.name")
     @Mapping(target = "userName", source = "user.username")
-    PostResponse mapToDto(Post post);
+    @Mapping(target = "commentCount", expression = "java(commentCount(post))")
+    public abstract PostResponse mapToDto(Post post);
+
+    Integer commentCount(Post post) {
+        return commentRepository.findByPost(post).size();
+    }
 
 }
